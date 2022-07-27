@@ -128,25 +128,29 @@ add_executable (${PROJECT_NAME} ${SRC})
 
 # TODO: ln -s ~/opentee/opentee/libtee/include/tee_shared_data_types.h ~/opentee/opentee/libtee/include/tee_api_types.h
 
+# These are for building xtest only, so we can use OPTEE definitions (OpenTEE's should be a subset of them)
+# this will simplify xtest build
+# worst case the test will use constants not defined in the OpenTEE internal API and the test will fail because of that
 target_include_directories(${PROJECT_NAME}
 	PRIVATE .
 	PRIVATE ../supp_plugin/include
 	PRIVATE adbg/include
 	## OPTEE build
-	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_client/public
-	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/lib/libutee/include
-	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/lib/libutils/ext/include
-	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/core/include
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_client/public
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/lib/libutee/include
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/lib/libutils/ext/include
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/core/include
 	#
 	## OpenTEE build
 	# TEE Client API
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../opentee/libtee/include
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../opentee/libtee/include
 	# TEE Internal API
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../opentee/emulator/include
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../opentee/emulator/include
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 	${GP_INCLUDES}
 )
 
+# This is when we should specify OpenTEE libraries to link to
 target_link_libraries (${PROJECT_NAME}
 	PRIVATE ${CMAKE_THREAD_LIBS_INIT}
 	PRIVATE xtest-ta-headers

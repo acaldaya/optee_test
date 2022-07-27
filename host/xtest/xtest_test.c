@@ -26,7 +26,7 @@
 #ifdef CFG_TA_BTI
 #include <ta_arm_bti.h>
 #endif
-// #include <tee_api_defines.h>
+#include <tee_api_defines.h>
 #include <tee_client_api.h>
 // #include <__tee_isocket_defines.h>
 // #include <__tee_tcpsocket_defines.h>

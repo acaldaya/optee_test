@@ -29,19 +29,22 @@ Expected dir layout:
     opentee/
         build/
     optee_os/
+    optee_client/
     optee_test/
         build/
 ```
 
-### Clone OPTEE OS
+### Clone OPTEE OS and OPTEE Client API
 
-xtest build source files assume optee_os sources are
+xtest build source files assume `optee_os` and `optee_client` sources are
 available to grab some includes.
-So, we just clone it without building it.
+So, we just clone them.
 
 At <root_dir>
 
 git clone https://github.com/OP-TEE/optee_os
+
+git clone https://github.com/OP-TEE/optee_client
 
 ### Build OpenSSL 1.1.1n
 
