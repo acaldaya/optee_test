@@ -28,9 +28,20 @@ Expected dir layout:
     openssl-1.1.1n/
     opentee/
         build/
+    optee_os/
     optee_test/
-        build
+        build/
 ```
+
+### Clone OPTEE OS
+
+xtest build source files assume optee_os sources are
+available to grab some includes.
+So, we just clone it without building it.
+
+At <root_dir>
+
+git clone https://github.com/OP-TEE/optee_os
 
 ### Build OpenSSL 1.1.1n
 
@@ -109,14 +120,10 @@ mkdir -p build && cd build
 cmake ..
 ```
 
-Last step will build the TAs included in
-`ta/CMakeLists.txt` as `build_ta` commands (eg. `aes_perf` and `sha_perf`).
-It will also copy them to `/opt/OpenTee/lib/TAs`
-to be ready to be used by OpenTEE.
+For building the `xtest` host application and the TAs run `make`.
+`sudo make install` will put the TAs in OpenTEE directory: `/opt/OpenTee/lib/TAs`
 
-That **IS NOT** the proper way to do it, but this is the first commit O:)
-
-For building the `xtest` host application, execute `make`.
+Currently, only two TAs are tested: `sha_perf` and `aes_perf`.
 
 If everything goes smooth we can start testing the integration:
 
@@ -138,6 +145,6 @@ host/xtest/xtest --aes-perf -m CBC
 fg # to bring opentee-engine to foreground then Control+C
 ```
 
-To rebuild the TAs, we MUST close OpenTEE first, then run `cmake ..`.
+To reinstall the TAs, we **MUST** close OpenTEE first, then run `sudo make install`.
 
 You can see OpenTEE logs in host environment syslog: `sudo tail -f /var/log/syslog`

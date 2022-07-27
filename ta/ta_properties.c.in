@@ -4,6 +4,8 @@
 // #include "tee_shared_data_types.h"
 #include <tee_ta_api.h>
 
+void trace_printf(const char *function, int line, int level, bool level_ok, const char *fmt, ...);
+
 // Part of optee_os logging facilities
 void trace_printf(const char *function, int line, int level, bool level_ok,
 		  const char *fmt, ...) {}

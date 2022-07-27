@@ -70,16 +70,12 @@ macro(build_ta TA)
 	# TODO: we add ta_entry.c and ta_$TA.c, however it might be others, or eg. ta_$TA.c doesn't exist
 	set(SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_properties.c ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_entry.c  ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_${TA}.c)
 
-	# TODO: make this part of the build process instead of cmake, spliting build from install (it is causing a race condition in the OpenTEE manager)
-	execute_process(
-        COMMAND sudo gcc ${SRC_FILES} -I${CMAKE_CURRENT_SOURCE_DIR}/${TA}/include ${TEE_INTERNAL_API_INCLUDES} -shared -fPIC -o /opt/OpenTee/lib/TAs/lib${TA}.so
-        OUTPUT_VARIABLE GCC_ERRORS
-        RESULT_VARIABLE ERROR)
-
-	if (NOT "${ERROR}" STREQUAL 0)
-        message(FATAL_ERROR "Build ${TA} failed:")
-		message(FATAL_ERROR ${GCC_ERRORS})
-    endif()
+	add_library(${TA} SHARED ${SRC_FILES})
+	target_include_directories(${TA} PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/${TA}/include
+		${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutee/include
+		${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutils/ext/include)
+	install(TARGETS ${TA} DESTINATION /opt/OpenTee/lib/TAs)
 
 endmacro()
 
