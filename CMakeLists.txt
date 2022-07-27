@@ -2,7 +2,9 @@ cmake_minimum_required (VERSION 3.4)
 project (optee_test C)
 
 # Default cross compile settings
-set (CMAKE_TOOLCHAIN_FILE CMakeToolchain.txt)
+# set (CMAKE_TOOLCHAIN_FILE CMakeToolchain.txt)
+
+set (OPENSSL_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../openssl-1.1.1n)
 
 set (OPTEE_TEST_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 ################################################################################
@@ -31,4 +33,4 @@ endif(CCACHE_FOUND)
 
 add_subdirectory (ta)
 add_subdirectory (host/xtest)
-add_subdirectory (host/supp_plugin)
+# add_subdirectory (host/supp_plugin)

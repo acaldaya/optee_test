@@ -151,8 +151,10 @@ int main(int argc, char *argv[])
 	else if (argc > 1 && !strcmp(argv[1], "--sdp-basic"))
 		return sdp_basic_runner_cmd_parser(argc-1, &argv[1]);
 #endif
+#ifdef CFG_OPTEE_STATS
 	else if (argc > 1 && !strcmp(argv[1], "--stats"))
 		return stats_runner_cmd_parser(argc - 1, &argv[1]);
+#endif
 
 	while ((opt = getopt(argc, argv, "d:l:t:h")) != -1) {
 		switch (opt) {

@@ -11,7 +11,9 @@
 #include <string.h>
 #include <ta_crypt.h>
 #include <ta_os_test.h>
-#include <utee_defines.h>
+// #include <utee_defines.h>
+
+#define TEE_ATTR_BIT_VALUE         TEE_ATTR_FLAG_VALUE
 
 #include "xtest_helpers.h"
 #include "xtest_test.h"

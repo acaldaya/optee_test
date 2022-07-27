@@ -10,6 +10,9 @@
 #include <pthread.h>
 #include <tee_api_types.h>
 #include <tee_client_api.h>
+#include <tee_internal_api.h>
+
+typedef uint32_t TEE_ObjectType;
 
 extern unsigned int level;
 

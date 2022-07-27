@@ -11,7 +11,7 @@
 
 #include "xtest_test.h"
 #include "xtest_helpers.h"
-#include "tee_api_defines.h"
+// #include "tee_api_defines.h"
 #include "tee_client_api.h"
 
 #define OFFSET0 0

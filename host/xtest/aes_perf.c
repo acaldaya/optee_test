@@ -17,7 +17,9 @@
 #include <sys/types.h>
 #include <ta_aes_perf.h>
 #include <tee_client_api.h>
+#ifdef CFG_SECURE_DATA_PATH
 #include <tee_client_api_extensions.h>
+#endif
 #include <time.h>
 #include <unistd.h>
 

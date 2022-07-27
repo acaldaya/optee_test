@@ -24,7 +24,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#if defined(CFG_TA_BTI)
 #include <ta_arm_bti.h>
+#endif
 #include <ta_concurrent.h>
 #include <ta_create_fail_test.h>
 #include <ta_crypt.h>
@@ -2498,7 +2500,7 @@ static void xtest_tee_test_1033(ADBG_Case_t *c)
 		TEEC_Operation op = TEEC_OPERATION_INITIALIZER;
 
 		op.paramTypes = TEEC_PARAM_TYPES(TEEC_NONE, TEEC_NONE,
-						 TEEC_NONE, TEEC_NONE);	
+						 TEEC_NONE, TEEC_NONE);
 		ADBG_EXPECT_TEEC_RESULT(c, TEEC_ERROR_ITEM_NOT_FOUND,
 			TEEC_InvokeCommand(&session,
 					   TA_SUPP_PLUGIN_CMD_UNKNOWN_UUID,

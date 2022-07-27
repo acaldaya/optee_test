@@ -1,0 +1,40 @@
+#include <stdlib.h>
+#include <stdbool.h>
+
+// #include "tee_shared_data_types.h"
+#include <tee_ta_api.h>
+
+// Part of optee_os logging facilities
+void trace_printf(const char *function, int line, int level, bool level_ok,
+		  const char *fmt, ...) {}
+
+#define PROPERTY_SEC_NAME ".ta_properties"
+
+#define SET_TA_PROPERTIES(...)                                                                     \
+	struct gpd_ta_config ta_pro __attribute__((section(PROPERTY_SEC_NAME))) = { __VA_ARGS__ };
+
+/*!
+* \brief The gpd_ta_config struct
+* This structure defines the Standard Configuration Properties of an applet as outlined in
+* table 4-11 of the Internal API spec
+*/
+struct gpd_ta_config
+{
+	TEE_UUID appID;
+	size_t dataSize;
+	size_t stackSize;
+	bool singletonInstance;
+	bool multiSession;
+	bool instanceKeepAlive;
+};
+
+#cmakedefine TA_TEE_UUID @TA_TEE_UUID@
+
+/* UUID must be unique */
+SET_TA_PROPERTIES(
+    TA_TEE_UUID
+		512, /* dataSize */
+		255, /* stackSize */
+		1, /* singletonInstance */
+		1, /* multiSession */
+		1) /* instanceKeepAlive */

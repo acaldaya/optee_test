@@ -1,6 +1,7 @@
 project (xtest C)
 
-include(${OPTEE_TEST_SDK}/host_include/conf.cmake)
+# TODO: figure out
+# include(${OPTEE_TEST_SDK}/host_include/conf.cmake)
 
 ################################################################################
 # Packages
@@ -46,17 +47,18 @@ set (SRC
 	adbg/src/adbg_run.c
 	adbg/src/security_utils_hex.c
 	aes_perf.c
-	benchmark_1000.c
-	benchmark_2000.c
-	regression_1000.c
-	regression_4000.c
-	regression_4100.c
+	# benchmark_1000.c  # storage benchmark
+	# benchmark_2000.c  # sockets
+
+	# regression_1000.c # several nature tests, requires #include <signed_hdr.h>
+	# regression_4000.c # crypto, but it may be outdated
+	# regression_4100.c # same ^
 	regression_5000.c
-	regression_6000.c
-	regression_8000.c
-	regression_8100.c
+	# regression_6000.c # storage
+	# regression_8000.c # crypto: key derivation
+	# regression_8100.c # crypto: cert
 	sha_perf.c
-	stats.c
+	# stats.c			# optee stats
 	xtest_helpers.c
 	xtest_main.c
 	xtest_test.c
@@ -86,6 +88,10 @@ if (WITH_GP_TESTS)
 	GEN_GP_FILE(gp_40000.c Time_Arithmetical/xmlstable TEE_TimeArithm_API)
 	GEN_GP_FILE(gp_50000.c Crypto/xmlstable TEE_Crypto_API)
 	set (GP_INCLUDES PRIVATE gp/include)
+endif()
+
+if(CFG_OPTEE_STATS)
+	list (APPEND SRC stats.c)
 endif()
 
 if (CFG_GP_SOCKETS)
@@ -118,13 +124,25 @@ endif()
 ################################################################################
 add_executable (${PROJECT_NAME} ${SRC})
 
-target_compile_options (${PROJECT_NAME} PRIVATE -include conf.h)
+# target_compile_options (${PROJECT_NAME} PRIVATE -include conf.h)
+
+# TODO: ln -s ~/opentee/opentee/libtee/include/tee_shared_data_types.h ~/opentee/opentee/libtee/include/tee_api_types.h
 
 target_include_directories(${PROJECT_NAME}
 	PRIVATE .
 	PRIVATE ../supp_plugin/include
 	PRIVATE adbg/include
-	PRIVATE ${OPTEE_TEST_SDK}/host_include
+	## OPTEE build
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_client/public
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/lib/libutee/include
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/lib/libutils/ext/include
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_os/core/include
+	#
+	## OpenTEE build
+	# TEE Client API
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../opentee/libtee/include
+	# TEE Internal API
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../opentee/emulator/include
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 	${GP_INCLUDES}
 )
@@ -132,10 +150,19 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries (${PROJECT_NAME}
 	PRIVATE ${CMAKE_THREAD_LIBS_INIT}
 	PRIVATE xtest-ta-headers
-	PRIVATE teec
+	# PRIVATE teec
+	## OPTEE build
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../optee_client/build/libteec/libteec.a
+	# PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../../opentee/build/libtee/.libs/libtee.a
+	#
+	## OpenTEE build
+	PRIVATE /opt/OpenTee/lib/libtee.a
+	PRIVATE /opt/OpenTee/lib/libCommonApi.a
 	PRIVATE m
+	PRIVATE rt
+	PRIVATE z
 	PRIVATE ${OPENSSL_PRIVATE_LINK}
-	PRIVATE ckteec
+	# PRIVATE ckteec
 )
 
 ################################################################################
