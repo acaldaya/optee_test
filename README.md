@@ -17,7 +17,6 @@ OpenTEE is outdated wrt OPTEE GlobalPlatform TEE spec versions,
 therefore there are some tests/features/code that won't work.
 
 This setup builds for x86.
-When we collect which tests OpenTEE supports, we can migrate it to RISC-V (Keystone).
 
 ## Setup
 
