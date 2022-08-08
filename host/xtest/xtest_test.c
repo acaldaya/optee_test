@@ -6,7 +6,7 @@
 #include "xtest_test.h"
 #include <enc_fs_key_manager_test.h>
 // TODO: make ifdef pta
-// #include <pta_invoke_tests.h>
+#include <pta_invoke_tests.h>
 #include <ta_concurrent.h>
 #include <ta_concurrent_large.h>
 #include <ta_create_fail_test.h>
@@ -190,7 +190,7 @@ const TEEC_UUID crypt_user_ta_uuid = TA_CRYPT_UUID;
 const TEEC_UUID os_test_ta_uuid = TA_OS_TEST_UUID;
 const TEEC_UUID create_fail_test_ta_uuid = TA_CREATE_FAIL_TEST_UUID;
 const TEEC_UUID ecc_test_ta_uuid = ECC_SELF_TEST_UUID;
-// const TEEC_UUID pta_invoke_tests_ta_uuid = PTA_INVOKE_TESTS_UUID;
+const TEEC_UUID pta_invoke_tests_ta_uuid = PTA_INVOKE_TESTS_UUID;
 const TEEC_UUID rpc_test_ta_uuid = TA_RPC_TEST_UUID;
 const TEEC_UUID sims_test_ta_uuid = TA_SIMS_TEST_UUID;
 const TEEC_UUID miss_test_ta_uuid = TA_MISS_TEST_UUID;
