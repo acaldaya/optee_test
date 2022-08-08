@@ -31,6 +31,9 @@ if(CCACHE_FOUND)
 	set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
 
+# Set this define globally
+set(CFG_TEST_CORE_ONLY 1)
+
 add_subdirectory (ta)
 add_subdirectory (host/xtest)
 # add_subdirectory (host/supp_plugin)

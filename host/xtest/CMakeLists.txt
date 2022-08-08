@@ -89,6 +89,10 @@ if (WITH_GP_TESTS)
 	set (GP_INCLUDES PRIVATE gp/include)
 endif()
 
+if(CFG_TEST_CORE_ONLY)
+	add_compile_options(-DCFG_TEST_CORE_ONLY)
+endif()
+
 if(CFG_OPTEE_STATS)
 	list (APPEND SRC stats.c)
 endif()
