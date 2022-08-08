@@ -13,9 +13,11 @@
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
 #endif
+// #ifdef CFG_PTA
 #include <pta_attestation.h>
 #include <pta_invoke_tests.h>
 #include <pta_secstor_ta_mgmt.h>
+// #endif
 #include <pthread.h>
 #include <sdp_basic.h>
 #include <signed_hdr.h>
@@ -616,6 +618,8 @@ static void xtest_tee_test_1007(ADBG_Case_t *c)
 }
 ADBG_CASE_DEFINE(regression, 1007, xtest_tee_test_1007, "Test Panic");
 
+#ifdef CFG_PTA_CORRUPT_TA
+
 #ifndef TA_DIR
 # ifdef __ANDROID__
 #define TA_DIR "/vendor/lib/optee_armtz"
@@ -728,6 +732,7 @@ static void test_1008_corrupt_ta(ADBG_Case_t *c)
 	ADBG_EXPECT_TRUE(c, load_corrupt_ta(c, 3000, 1)); /* payload */
 	ADBG_EXPECT_TRUE(c, load_corrupt_ta(c, 8000, 1)); /* payload */
 }
+#endif
 
 static void xtest_tee_test_1008(ADBG_Case_t *c)
 {
@@ -750,6 +755,8 @@ static void xtest_tee_test_1008(ADBG_Case_t *c)
 	}
 	Do_ADBG_EndSubCase(c, "Invoke command");
 
+
+#ifdef CFG_ENABLE_TEE_OpenTASession_TO_SELF
 	Do_ADBG_BeginSubCase(c, "Invoke command with timeout");
 	{
 		TEEC_Operation op = TEEC_OPERATION_INITIALIZER;
@@ -772,6 +779,9 @@ static void xtest_tee_test_1008(ADBG_Case_t *c)
 		}
 	}
 	Do_ADBG_EndSubCase(c, "Invoke command with timeout");
+#else
+	Do_ADBG_Log(" - 1008 -   skip test, Invoke command with timeout (CFG_ENABLE_TEE_OpenTASession_TO_SELF not defined)");
+#endif
 
 	Do_ADBG_BeginSubCase(c, "Create session fail");
 	{
@@ -790,9 +800,13 @@ static void xtest_tee_test_1008(ADBG_Case_t *c)
 	}
 	Do_ADBG_EndSubCase(c, "Create session fail");
 
+#ifdef CFG_PTA_CORRUPT_TA
 	Do_ADBG_BeginSubCase(c, "Load corrupt TA");
 	test_1008_corrupt_ta(c);
 	Do_ADBG_EndSubCase(c, "Load corrupt TA");
+#else
+	Do_ADBG_Log(" - 1008 -   skip test, Load corrupt TA (CFG_PTA_CORRUPT_TA not defined)");
+#endif
 }
 ADBG_CASE_DEFINE(regression, 1008, xtest_tee_test_1008,
 		"TEE internal client API");
@@ -1730,7 +1744,7 @@ bail0:
 	TEEC_CloseSession(&cs[0]);
 }
 
-static void test_panic_ta_to_ta(ADBG_Case_t *c, const TEEC_UUID *uuid1,
+static __maybe_unused void test_panic_ta_to_ta(ADBG_Case_t *c, const TEEC_UUID *uuid1,
 				const TEEC_UUID *uuid2)
 {
 	uint32_t ret_orig = 0;
@@ -1827,10 +1841,12 @@ static void xtest_tee_test_1021(ADBG_Case_t *c)
 	test_panic_ca_to_ta(c, &sims_keepalive_test_ta_uuid, false);
 	Do_ADBG_EndSubCase(c, "Single Instance Multi Sessions Keep Alive");
 
+#ifdef CFG_ENABLE_TEE_OpenTASession_TO_SELF
 	Do_ADBG_BeginSubCase(c, "Multi Sessions TA to TA");
 	test_panic_ta_to_ta(c, &sims_test_ta_uuid,
 			    &sims_keepalive_test_ta_uuid);
 	Do_ADBG_EndSubCase(c, "Multi Sessions TA to TA");
+#endif
 }
 ADBG_CASE_DEFINE(regression, 1021, xtest_tee_test_1021,
 		 "Test panic context release");
