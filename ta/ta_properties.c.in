@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// #include "tee_shared_data_types.h"
 #include <tee_ta_api.h>
+
+#include <user_ta_header.h>
+#include <user_ta_header_defines.h>
 
 void trace_printf(const char *function, int line, int level, bool level_ok, const char *fmt, ...);
 
@@ -30,13 +32,11 @@ struct gpd_ta_config
 	bool instanceKeepAlive;
 };
 
-#cmakedefine TA_TEE_UUID @TA_TEE_UUID@
-
 /* UUID must be unique */
 SET_TA_PROPERTIES(
-    TA_TEE_UUID
-		512, /* dataSize */
-		255, /* stackSize */
-		1, /* singletonInstance */
-		1, /* multiSession */
-		1) /* instanceKeepAlive */
+    TA_UUID,
+		TA_DATA_SIZE, /* dataSize */
+		TA_STACK_SIZE, /* stackSize */
+		TA_FLAGS & TA_FLAG_SINGLE_INSTANCE,     /* singletonInstance */
+		TA_FLAGS & TA_FLAG_MULTI_SESSION,       /* multiSession */
+		TA_FLAGS & TA_FLAG_INSTANCE_KEEP_ALIVE) /* instanceKeepAlive */

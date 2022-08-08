@@ -26,58 +26,72 @@ target_include_directories(${PROJECT_NAME}
 )
 
 macro(build_ta TA)
-    execute_process(
-        COMMAND grep BINARY ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/Makefile
-        OUTPUT_VARIABLE TA_UUID
-        RESULT_VARIABLE ERROR)
-
-    if (NOT "${ERROR}" STREQUAL 0)
-        message(FATAL_ERROR "Error parsing the UUID")
-    endif()
-
-    string(REPLACE "BINARY" "" TA_UUID ${TA_UUID})
-    string(REPLACE "=" "" TA_UUID ${TA_UUID})
-	string(STRIP ${TA_UUID} TA_UUID)
-
-    message(STATUS "Building TA ${TA} with UUID: ${TA_UUID}")
-
-	# Split UUID to init a TEE_UUID C data type
-	#e626662e-c0e2-485c-b8c8-09fbce6edf3d
-	string(SUBSTRING ${TA_UUID} 0  8 UUID_0)
-	string(SUBSTRING ${TA_UUID} 9  4 UUID_1)
-	string(SUBSTRING ${TA_UUID} 14 4 UUID_2)
-	string(SUBSTRING ${TA_UUID} 19 2 UUID_3_1)
-	string(SUBSTRING ${TA_UUID} 21 2 UUID_3_2)
-
-	string(SUBSTRING ${TA_UUID} 24 2 UUID_4)
-	string(SUBSTRING ${TA_UUID} 26 2 UUID_5)
-	string(SUBSTRING ${TA_UUID} 28 2 UUID_6)
-	string(SUBSTRING ${TA_UUID} 30 2 UUID_7)
-	string(SUBSTRING ${TA_UUID} 32 2 UUID_8)
-	string(SUBSTRING ${TA_UUID} 34 2 UUID_9)
-
-	# { 0x12345678, 0x8765, 0x4321, { 'D', 'I', 'G', 'E', 'S', 'T', '0', '0'} }, /* UUID */
-	set(C_UUID "{0x${UUID_0}, 0x${UUID_1}, 0x${UUID_2}, { 0x${UUID_3_1}, 0x${UUID_3_2}, 0x${UUID_4}, 0x${UUID_5}, 0x${UUID_6}, 0x${UUID_7}, 0x${UUID_8}, 0x${UUID_9}} },")
 
 	set(TEE_INTERNAL_API_INCLUDES
 			-I${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutee/include
 			-I${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutils/ext/include)
 
-	# This replaces TA_TEE_UUID by the TEE_UUID initialization in ${TA}/ta_properties.c
-	set(TA_TEE_UUID ${C_UUID})
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ta_properties.c.in ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_properties.c @ONLY)
+	# Grab TA src files
+	file(GLOB SRC_FILES CONFIGURE_DEPENDS  "${CMAKE_CURRENT_SOURCE_DIR}/${TA}/*.c")
+	list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/mbedtls_taf.c)
+	list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_arm_pauth.c)
+	list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/test_float_subj.c) # TODO: maybe include it later?
+	list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/cxx_tests_c.c) # TODO: include if CXX tests
 
-	# TODO: we add ta_entry.c and ta_$TA.c, however it might be others, or eg. ta_$TA.c doesn't exist
-	set(SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_properties.c ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_entry.c  ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_${TA}.c)
-
+	# Build TA as shared libraries to satisfy OpenTEE
 	add_library(${TA} SHARED ${SRC_FILES})
+
+	# We use OPTEE Internal API defs as they should be a superset of OpenTEE's
 	target_include_directories(${TA} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/${TA}/include
 		${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutee/include
 		${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutils/ext/include)
+
+	# Install TAs in OpenTEE default dir
 	install(TARGETS ${TA} DESTINATION /opt/OpenTee/lib/TAs)
 
+	# TA specific setups
+	if ("${TA}" STREQUAL "os_test")
+		target_include_directories(${TA} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/crypt/include)
+		target_include_directories(${TA} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/os_test_lib/include)
+	endif()
+
+	if ("${TA}" STREQUAL "sims_keepalive")
+		target_include_directories(${TA} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/sims/include)
+	endif()
+
+	if ("${TA}" STREQUAL "miss")
+		target_include_directories(${TA} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/sims/include)
+	endif()
+
+	if ("${TA}" STREQUAL "concurrent_large")
+		target_include_directories(${TA} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/concurrent/include)
+	endif()
+
+	if ("${TA}" STREQUAL "rpc_test")
+		target_include_directories(${TA} PRIVATE
+			${CMAKE_CURRENT_SOURCE_DIR}/crypt/include
+			${CMAKE_CURRENT_SOURCE_DIR}/sims/include)
+	endif()
+
 endmacro()
+
+# Preprocessor flags to disable some code
+# all disabled by default
+# CFG_TA_LIB
+# CFG_MEMTAG
+# CFG_PTA_CORRUPT_TA
+# CFG_TA2TA_MEMREF
+# CFG_TEST_PROPERTIES (OpenTee doesn't have properties)
+# CFG_ENABLE_TEE_OpenTASession_TO_SELF (see os_tests.c)
+
+# flags treated in sub.mk (TODO: include them here)
+# CFG_TA_PAUTH
+# cppflags-$(CFG_TA_FLOAT_SUPPORT) += -DCFG_TA_FLOAT_SUPPORT=1
+# cppflags-$(WITH_TLS_TESTS) += -DWITH_TLS_TESTS=1
+# cppflags-$(WITH_CXX_TESTS) += -DWITH_CXX_TESTS=1
+# cflags-y += -Wno-float-equal
+# srcs-$(CFG_TA_FLOAT_SUPPORT) += test_float_subj.c
 
 build_ta(aes_perf)
 build_ta(sha_perf)
