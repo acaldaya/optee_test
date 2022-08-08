@@ -89,11 +89,13 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 	case TA_OS_TEST_CMD_BAD_MEM_ACCESS:
 		return ta_entry_bad_mem_access(nParamTypes, pParams);
 
+#if defined(CFG_TA2TA_MEMREF)
 	case TA_OS_TEST_CMD_TA2TA_MEMREF:
 		return ta_entry_ta2ta_memref(nParamTypes, pParams);
 
 	case TA_OS_TEST_CMD_TA2TA_MEMREF_MIX:
 		return ta_entry_ta2ta_memref_mix(nParamTypes, pParams);
+#endif
 
 	case TA_OS_TEST_CMD_PARAMS:
 		return ta_entry_params(nParamTypes, pParams);
@@ -101,6 +103,7 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 	case TA_OS_TEST_CMD_NULL_MEMREF_PARAMS:
 		return ta_entry_null_memref(nParamTypes, pParams);
 
+#if defined(CFG_TA_LIB)
 	case TA_OS_TEST_CMD_CALL_LIB:
 		return ta_entry_call_lib(nParamTypes, pParams);
 
@@ -112,12 +115,15 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 
 	case TA_OS_TEST_CMD_CALL_LIB_DL_PANIC:
 		return ta_entry_call_lib_dl_panic(nParamTypes, pParams);
+#endif
 
 	case TA_OS_TEST_CMD_GET_GLOBAL_VAR:
 		return ta_entry_get_global_var(nParamTypes, pParams);
 
+#if defined(CFG_TEST_PROPERTIES)
 	case TA_OS_TEST_CMD_CLIENT_IDENTITY:
 		return ta_entry_client_identity(nParamTypes, pParams);
+#endif
 
 	case TA_OS_TEST_CMD_TLS_TEST_MAIN:
 		return ta_entry_tls_test_main();
@@ -125,11 +131,13 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 	case TA_OS_TEST_CMD_TLS_TEST_SHLIB:
 		return ta_entry_tls_test_shlib();
 
+#if defined(CFG_TA_LIB)
 	case TA_OS_TEST_CMD_DL_PHDR:
 		return ta_entry_dl_phdr();
 
 	case TA_OS_TEST_CMD_DL_PHDR_DL:
 		return ta_entry_dl_phdr_dl();
+#endif
 
 #if defined(WITH_CXX_TESTS)
 	case TA_OS_TEST_CMD_CXX_CTOR_MAIN:
@@ -166,6 +174,8 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 	case TA_OS_TEST_CMD_PAUTH_CORRUPT_PAC:
 		return TEE_ERROR_NOT_SUPPORTED;
 #endif
+
+#if defined(CFG_MEMTAG)
 	case TA_OS_TEST_CMD_MEMTAG_USE_AFTER_FREE:
 		return ta_entry_memtag_use_after_free();
 	case TA_OS_TEST_CMD_MEMTAG_INVALID_TAG:
@@ -174,6 +184,7 @@ TEE_Result TA_InvokeCommandEntryPoint(void *pSessionContext,
 		return ta_entry_memtag_double_free();
 	case TA_OS_TEST_CMD_MEMTAG_BUFFER_OVERRUN:
 		return ta_entry_memtag_buffer_overrun();
+#endif
 
 	case TA_OS_TEST_CMD_ATTESTATION:
 		return ta_entry_attestation(nParamTypes, pParams);

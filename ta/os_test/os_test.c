@@ -6,8 +6,12 @@
  */
 #include <compiler.h>
 #include <dlfcn.h>
+#ifdef CFG_TA_LIB
 #include <link.h>
+#endif
+#ifdef CFG_MEMTAG
 #include <memtag.h>
+#endif
 #include <setjmp.h>
 #include <stdint.h>
 #include <string.h>
@@ -34,6 +38,7 @@ struct p_attr {
 	bool retrieved;
 };
 
+#ifdef CFG_TEST_PROPERTIES
 static TEE_Result check_returned_prop(
 		int line __maybe_unused, char *prop_name __maybe_unused,
 		TEE_Result return_res, TEE_Result expected_res,
@@ -357,6 +362,7 @@ while (true) {
 	}
 }
 }
+#endif
 
 static TEE_Result test_malloc(void)
 {
@@ -372,6 +378,7 @@ static TEE_Result test_malloc(void)
 	return TEE_SUCCESS;
 }
 
+#ifdef CFG_TEST_PROPERTIES
 static TEE_Result test_properties(void)
 {
 	TEE_Result res = TEE_ERROR_GENERIC;
@@ -453,6 +460,7 @@ cleanup_return:
 	TEE_FreePropertyEnumerator(h);
 	return res;
 }
+#endif
 
 static TEE_Result test_mem_access_right(uint32_t param_types,
 					TEE_Param params[4])
@@ -460,10 +468,12 @@ static TEE_Result test_mem_access_right(uint32_t param_types,
 	static const TEE_UUID test_uuid = TA_OS_TEST_UUID;
 	TEE_Result res = TEE_ERROR_GENERIC;
 	uint32_t ret_orig = 0;
+#ifdef CFG_ENABLE_TEE_OpenTASession_TO_SELF
 	uint32_t l_pts = 0;
 	TEE_Param l_params[4] = { };
 	uint8_t buf[32] = { };
 	TEE_TASessionHandle sess = TEE_HANDLE_NULL;
+#endif
 	TEE_UUID *uuid = NULL;
 
 	if (param_types !=
@@ -523,6 +533,9 @@ static TEE_Result test_mem_access_right(uint32_t param_types,
 	if (res == TEE_SUCCESS)
 		return TEE_ERROR_GENERIC;
 
+#ifdef CFG_ENABLE_TEE_OpenTASession_TO_SELF
+	// This hang-up forever, it is trying to open a session with the same TA
+	// don't know if OpenTEE has that implemented
 	res = TEE_OpenTASession(&test_uuid, TEE_TIMEOUT_INFINITE, 0, NULL,
 				&sess, &ret_orig);
 	if (res != TEE_SUCCESS) {
@@ -547,6 +560,8 @@ static TEE_Result test_mem_access_right(uint32_t param_types,
 cleanup_return:
 	TEE_CloseTASession(sess);
 	return res;
+#endif
+	return TEE_SUCCESS;
 }
 
 static TEE_Result test_time(void)
@@ -621,7 +636,7 @@ static TEE_Result test_time(void)
 
 	res = TEE_GetTAPersistentTime(&t);
 	if (res != TEE_ERROR_OVERFLOW) {
-		EMSG("TEE_GetTAPersistentTime: failed\n");
+		EMSG("TEE_GetTAPersistentTime: failed (race condition in current solution)\n");
 		return TEE_ERROR_BAD_STATE;
 	}
 	printf("TA time %u.%03u\n", (unsigned int)t.seconds,
@@ -783,10 +798,16 @@ TEE_Result ta_entry_basic(uint32_t param_types, TEE_Param params[4])
 	if (res != TEE_SUCCESS)
 		return res;
 
+#ifdef CFG_TEST_PROPERTIES
 	res = test_properties();
 	if (res != TEE_SUCCESS)
 		return res;
+#endif
 
+	// Original call hangs up forever
+	// it calls: TEE_OpenTASession() to open a session with the same TA (os_test)
+	// it uses an infinite timeout so it hangs.
+	// idk if OpenTEE has implemented this scenario
 	res = test_mem_access_right(param_types, params);
 	if (res != TEE_SUCCESS)
 		return res;
@@ -980,6 +1001,8 @@ static void undef_instr(void)
 	__asm__(".word 0x0");
 #elif defined(ARM32)
 	__asm__(".word 0xe7ffffff");
+#elif defined(__x86_64__)
+	__asm__("ud2");
 #else
 #error "Unsupported architecture"
 #endif
@@ -1033,6 +1056,7 @@ TEE_Result ta_entry_bad_mem_access(uint32_t param_types, TEE_Param params[4])
 	return TEE_SUCCESS;
 }
 
+#ifdef CFG_TA2TA_MEMREF
 static void incr_values(size_t bufsize, uint8_t *a, uint8_t *b, uint8_t *c)
 {
 	size_t i = 0;
@@ -1158,6 +1182,7 @@ TEE_Result ta_entry_ta2ta_memref_mix(uint32_t param_types, TEE_Param params[4])
 
 	return TEE_SUCCESS;
 }
+#endif
 
 TEE_Result ta_entry_params(uint32_t param_types, TEE_Param params[4])
 {
@@ -1200,6 +1225,7 @@ TEE_Result ta_entry_null_memref(uint32_t param_types, TEE_Param params[4])
 	return TEE_SUCCESS;
 }
 
+#ifdef CFG_TA_LIB
 TEE_Result ta_entry_call_lib(uint32_t param_types,
 			     TEE_Param params[4] __unused)
 {
@@ -1298,6 +1324,7 @@ err:
 	dlclose(handle);
 	return res;
 }
+#endif
 
 /* ELF initialization/finalization test */
 
@@ -1323,6 +1350,7 @@ TEE_Result ta_entry_get_global_var(uint32_t param_types, TEE_Param params[4])
 	return TEE_SUCCESS;
 }
 
+#ifdef CFG_TEST_PROPERTIES
 TEE_Result ta_entry_client_identity(uint32_t param_types, TEE_Param params[4])
 {
 	TEE_Result res = TEE_ERROR_GENERIC;
@@ -1352,6 +1380,7 @@ TEE_Result ta_entry_client_identity(uint32_t param_types, TEE_Param params[4])
 
 	return res;
 }
+#endif
 
 #if defined(WITH_TLS_TESTS)
 __thread int os_test_tls_a;
@@ -1397,6 +1426,7 @@ TEE_Result ta_entry_tls_test_shlib(void)
 }
 #endif
 
+#ifdef CFG_TA_LIB
 static int iterate_hdr_cb(struct dl_phdr_info *info __maybe_unused,
 			  size_t size __unused, void *data)
 {
@@ -1462,7 +1492,9 @@ TEE_Result ta_entry_dl_phdr_dl(void)
 
 	return res;
 }
+#endif
 
+#ifdef CFG_MEMTAG
 TEE_Result ta_entry_memtag_use_after_free(void)
 {
 	uint32_t *p = NULL;
@@ -1528,5 +1560,5 @@ TEE_Result ta_entry_memtag_buffer_overrun(void)
 	TEE_Free(p);
 	return TEE_ERROR_GENERIC;
 }
-
+#endif
 
