@@ -113,4 +113,22 @@ void xtest_barrier_init(pthread_barrier_t *barrier, unsigned count);
 void xtest_barrier_destroy(pthread_barrier_t *barrier);
 int xtest_barrier_wait(pthread_barrier_t *barrier);
 
+// OPTEE uses old identifiers and constants for ECDH key derivation
+// OpenTEE follows the updated spec:
+// Where all ECDH variants uses the same constant and the curve is specified
+// in the key material
+// xtest_helpers.h is used by both xtest and the TAs
+#undef TEE_ALG_ECDH_P192
+#undef TEE_ALG_ECDH_P224
+#undef TEE_ALG_ECDH_P256
+#undef TEE_ALG_ECDH_P384
+#undef TEE_ALG_ECDH_P521
+
+#define TEE_ALG_ECDH_DERIVE_SHARED_SECRET 0x80000042
+#define TEE_ALG_ECDH_P192 TEE_ALG_ECDH_DERIVE_SHARED_SECRET
+#define TEE_ALG_ECDH_P224 TEE_ALG_ECDH_DERIVE_SHARED_SECRET
+#define TEE_ALG_ECDH_P256 TEE_ALG_ECDH_DERIVE_SHARED_SECRET
+#define TEE_ALG_ECDH_P384 TEE_ALG_ECDH_DERIVE_SHARED_SECRET
+#define TEE_ALG_ECDH_P521 TEE_ALG_ECDH_DERIVE_SHARED_SECRET
+
 #endif /*XTEST_HELPERS_H*/
