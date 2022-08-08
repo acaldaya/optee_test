@@ -37,3 +37,10 @@ set(CFG_TEST_CORE_ONLY 1)
 add_subdirectory (ta)
 add_subdirectory (host/xtest)
 # add_subdirectory (host/supp_plugin)
+
+# Copy package to overlay
+add_custom_target(reset
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/reset.sh
+  COMMENT "Rebuilding xtest/TAs and force OpenTEE to reload the TAs"
+  VERBATIM
+)
