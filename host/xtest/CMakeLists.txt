@@ -47,18 +47,17 @@ set (SRC
 	adbg/src/adbg_run.c
 	adbg/src/security_utils_hex.c
 	aes_perf.c
-	# benchmark_1000.c  # storage benchmark
-	# benchmark_2000.c  # sockets
-
-	# regression_1000.c # several nature tests, requires #include <signed_hdr.h>
-	# regression_4000.c # crypto, but it may be outdated
-	# regression_4100.c # same ^
-	regression_5000.c
-	# regression_6000.c # storage
-	# regression_8000.c # crypto: key derivation
-	# regression_8100.c # crypto: cert
+	benchmark_1000.c  # storage benchmark
+	benchmark_2000.c  # sockets
+	regression_1000.c # several nature tests
+	regression_4000.c # crypto, but OpenTEE may be outdated
+	regression_4100.c # bignum
+	regression_5000.c # shared memory
+	regression_6000.c # storage
+	regression_8000.c # crypto: key derivation
+	regression_8100.c # crypto: cert
 	sha_perf.c
-	# stats.c			# optee stats
+	stats.c           # optee stats
 	xtest_helpers.c
 	xtest_main.c
 	xtest_test.c
