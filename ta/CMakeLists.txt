@@ -31,6 +31,9 @@ macro(build_ta TA)
 			-I${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutee/include
 			-I${CMAKE_CURRENT_SOURCE_DIR}/../../optee_os/lib/libutils/ext/include)
 
+	# Generate ta_properties.c from template
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ta_properties.c.in ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/ta_properties.c)
+
 	# Grab TA src files
 	file(GLOB SRC_FILES CONFIGURE_DEPENDS  "${CMAKE_CURRENT_SOURCE_DIR}/${TA}/*.c")
 	list(REMOVE_ITEM SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/${TA}/mbedtls_taf.c)
