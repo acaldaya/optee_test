@@ -1,6 +1,6 @@
 project (xtest C)
 
-# TODO: figure out
+# TODO: figure out?
 # include(${OPTEE_TEST_SDK}/host_include/conf.cmake)
 
 ################################################################################
@@ -128,8 +128,6 @@ endif()
 add_executable (${PROJECT_NAME} ${SRC})
 
 # target_compile_options (${PROJECT_NAME} PRIVATE -include conf.h)
-
-# TODO: ln -s ~/opentee/opentee/libtee/include/tee_shared_data_types.h ~/opentee/opentee/libtee/include/tee_api_types.h
 
 # These are for building xtest only, so we can use OPTEE definitions (OpenTEE's should be a subset of them)
 # this will simplify xtest build
